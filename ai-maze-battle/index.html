@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Maze Battle – Smart Agent vs Opponent</title>
+    <meta name="description" content="Race through a maze against AI opponents using BFS, DFS, and A* search algorithms. Watch AI agents think in real-time!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="logo">
+                <span class="logo-icon">🧠</span>
+                <h1>AI Maze Battle</h1>
+            </div>
+            <p class="tagline">Smart Agent vs Opponent — Watch AI Think in Real-Time</p>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-main">
+            <!-- Left Panel: Controls -->
+            <aside class="panel control-panel">
+                <h2 class="panel-title">⚙️ Game Settings</h2>
+
+                <div class="control-group">
+                    <label>Game Mode</label>
+                    <div class="btn-group">
+                        <button class="btn btn-mode active" data-mode="pvai" id="btn-pvai">🎮 Player vs AI</button>
+                        <button class="btn btn-mode" data-mode="aivai" id="btn-aivai">🤖 AI vs AI</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Maze Size</label>
+                    <div class="slider-container">
+                        <input type="range" id="maze-size" min="7" max="31" step="2" value="15">
+                        <span class="slider-value" id="maze-size-val">15 × 15</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>AI Speed</label>
+                    <div class="slider-container">
+                        <input type="range" id="ai-speed" min="1" max="10" value="5">
+                        <span class="slider-value" id="ai-speed-val">5</span>
+                    </div>
+                </div>
+
+                <div class="control-group" id="ai1-group">
+                    <label>🤖 AI Algorithm</label>
+                    <select id="ai1-algo" class="select-styled">
+                        <option value="bfs">Goal-Based (BFS)</option>
+                        <option value="dfs">Explorer (DFS)</option>
+                        <option value="astar" selected>Smart Agent (A*)</option>
+                        <option value="random">Simple Reflex (Random)</option>
+                    </select>
+                </div>
+
+                <div class="control-group hidden" id="ai2-group">
+                    <label>🤖 Opponent AI</label>
+                    <select id="ai2-algo" class="select-styled">
+                        <option value="bfs" selected>Goal-Based (BFS)</option>
+                        <option value="dfs">Explorer (DFS)</option>
+                        <option value="astar">Smart Agent (A*)</option>
+                        <option value="random">Simple Reflex (Random)</option>
+                    </select>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-visited" checked>
+                        <span class="checkmark"></span>
+                        Show AI Search Visualization
+                    </label>
+                </div>
+
+                <div class="control-actions">
+                    <button class="btn btn-primary" id="btn-new-maze">🔄 New Maze</button>
+                    <button class="btn btn-start" id="btn-start">▶️ Start Race</button>
+                    <button class="btn btn-danger hidden" id="btn-reset">⏹️ Reset</button>
+                </div>
+
+                <div class="legend">
+                    <h3>Legend</h3>
+                    <div class="legend-items">
+                        <div class="legend-item"><span class="legend-color" style="background: #0f0f0f;"></span> Wall</div>
+                        <div class="legend-item"><span class="legend-color" style="background: #1a1a2e;"></span> Path</div>
+                        <div class="legend-item"><span class="legend-color" style="background: #00ff87;"></span> Start</div>
+                        <div class="legend-item"><span class="legend-color" style="background: #ff006e;"></span> Goal</div>
+                        <div class="legend-item"><span class="legend-color" style="background: rgba(0,200,255,0.3);"></span> AI Visited</div>
+                        <div class="legend-item"><span class="legend-color" style="background: rgba(255,200,0,0.4);"></span> AI Frontier</div>
+                        <div class="legend-item"><span class="legend-color" style="background: #00d4ff;"></span> AI Path</div>
+                        <div class="legend-item"><span class="legend-color" style="background: #ff9500;"></span> AI 2 Path</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center: Maze -->
+            <section class="maze-section">
+                <div class="maze-wrapper">
+                    <div class="maze-grid" id="maze-grid"></div>
+                </div>
+                <div class="game-message hidden" id="game-message">
+                    <span class="message-text" id="message-text"></span>
+                </div>
+            </section>
+
+            <!-- Right Panel: Stats -->
+            <aside class="panel stats-panel">
+                <h2 class="panel-title">📊 Battle Stats</h2>
+
+                <!-- Player Stats (shown in PvAI mode) -->
+                <div class="stat-card player-card" id="player-stats">
+                    <h3>🎮 Player</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Steps</span>
+                        <span class="stat-value" id="player-steps">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value stat-status" id="player-status">Ready</span>
+                    </div>
+                </div>
+
+                <!-- AI 1 Stats -->
+                <div class="stat-card ai1-card">
+                    <h3>🤖 AI Agent 1</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Algorithm</span>
+                        <span class="stat-value" id="ai1-name">A*</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Agent Type</span>
+                        <span class="stat-value" id="ai1-type">Smart</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Nodes Explored</span>
+                        <span class="stat-value" id="ai1-explored">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Path Length</span>
+                        <span class="stat-value" id="ai1-path">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Steps Taken</span>
+                        <span class="stat-value" id="ai1-steps">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value stat-status" id="ai1-status">Ready</span>
+                    </div>
+                </div>
+
+                <!-- AI 2 Stats (shown in AIvAI mode) -->
+                <div class="stat-card ai2-card hidden" id="ai2-stats">
+                    <h3>🤖 AI Agent 2</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Algorithm</span>
+                        <span class="stat-value" id="ai2-name">BFS</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Agent Type</span>
+                        <span class="stat-value" id="ai2-type">Goal-Based</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Nodes Explored</span>
+                        <span class="stat-value" id="ai2-explored">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Path Length</span>
+                        <span class="stat-value" id="ai2-path">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Steps Taken</span>
+                        <span class="stat-value" id="ai2-steps">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value stat-status" id="ai2-status">Ready</span>
+                    </div>
+                </div>
+
+                <!-- Score -->
+                <div class="stat-card score-card">
+                    <h3>🏆 Scoreboard</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">Wins</span>
+                        <span class="stat-value" id="player-wins">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">AI Wins</span>
+                        <span class="stat-value" id="ai-wins">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Rounds</span>
+                        <span class="stat-value" id="total-rounds">0</span>
+                    </div>
+                </div>
+
+                <!-- Algorithm Info -->
+                <div class="stat-card info-card">
+                    <h3>📖 Algorithm Info</h3>
+                    <p class="info-text" id="algo-info">
+                        Select an algorithm and start the race to see how
+                        different AI agents navigate the maze!
+                    </p>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <p>Built with ❤️ — Concepts from <strong>Unit 2</strong> (Data Structures & Search) & <strong>Unit 3</strong> (CSP & AI Agents)</p>
+            <p class="controls-hint" id="controls-hint">🎮 Use <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> Arrow Keys to move</p>
+        </footer>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

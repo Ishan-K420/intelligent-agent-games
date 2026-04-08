@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Agent Survival — AI Battle Arena</title>
+    <meta name="description" content="Watch 5 different AI agent types compete to survive in a hostile grid world with waves, day/night cycles, and power-ups.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-left">
+                <span class="game-logo">🧠</span>
+                <h1 class="game-title">Agent Survival</h1>
+            </div>
+            <div class="top-center">
+                <div class="wave-indicator">
+                    <span class="wave-label">WAVE</span>
+                    <span class="wave-number" id="wave-num">0</span>
+                </div>
+                <div class="time-indicator">
+                    <span class="time-icon" id="time-icon">☀️</span>
+                    <span class="time-label" id="time-label">DAY</span>
+                    <div class="time-bar-wrap">
+                        <div class="time-bar" id="time-bar"></div>
+                    </div>
+                </div>
+                <div class="alive-indicator">
+                    <span class="alive-label">ALIVE</span>
+                    <span class="alive-count" id="alive-count">5</span>
+                </div>
+            </div>
+            <div class="top-right">
+                <button class="btn btn-start" id="btn-start">▶ Start</button>
+                <button class="btn btn-pause hidden" id="btn-pause">⏸ Pause</button>
+                <button class="btn btn-restart hidden" id="btn-restart">🔄 Restart</button>
+                <div class="speed-ctrl">
+                    <label>Speed</label>
+                    <input type="range" id="speed-slider" min="1" max="10" value="4">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-area">
+            <!-- Left: Agent Cards -->
+            <aside class="sidebar agent-sidebar" id="agent-sidebar">
+                <h2 class="sidebar-title">🤖 Agents</h2>
+
+                <div class="agent-card" data-agent="reflex" id="card-reflex">
+                    <div class="agent-header">
+                        <span class="agent-dot reflex-dot"></span>
+                        <span class="agent-name">Simple Reflex</span>
+                        <span class="agent-badge">🔴</span>
+                    </div>
+                    <div class="agent-bars">
+                        <div class="bar-row"><span>HP</span><div class="bar"><div class="bar-fill hp-fill" id="hp-reflex"></div></div><span class="bar-val" id="hp-val-reflex">100</span></div>
+                        <div class="bar-row"><span>🍎</span><div class="bar"><div class="bar-fill hunger-fill" id="hunger-reflex"></div></div><span class="bar-val" id="hunger-val-reflex">100</span></div>
+                        <div class="bar-row"><span>⚡</span><div class="bar"><div class="bar-fill energy-fill" id="energy-reflex"></div></div><span class="bar-val" id="energy-val-reflex">100</span></div>
+                    </div>
+                    <div class="agent-status" id="status-reflex">Ready</div>
+                    <div class="agent-ability">Ability: <strong>Panic Dash</strong></div>
+                    <button class="btn btn-control" data-agent="reflex">🎮 Control</button>
+                </div>
+
+                <div class="agent-card" data-agent="model" id="card-model">
+                    <div class="agent-header">
+                        <span class="agent-dot model-dot"></span>
+                        <span class="agent-name">Model-Based</span>
+                        <span class="agent-badge">🔵</span>
+                    </div>
+                    <div class="agent-bars">
+                        <div class="bar-row"><span>HP</span><div class="bar"><div class="bar-fill hp-fill" id="hp-model"></div></div><span class="bar-val" id="hp-val-model">100</span></div>
+                        <div class="bar-row"><span>🍎</span><div class="bar"><div class="bar-fill hunger-fill" id="hunger-model"></div></div><span class="bar-val" id="hunger-val-model">100</span></div>
+                        <div class="bar-row"><span>⚡</span><div class="bar"><div class="bar-fill energy-fill" id="energy-model"></div></div><span class="bar-val" id="energy-val-model">100</span></div>
+                    </div>
+                    <div class="agent-status" id="status-model">Ready</div>
+                    <div class="agent-ability">Ability: <strong>Danger Map</strong></div>
+                    <button class="btn btn-control" data-agent="model">🎮 Control</button>
+                </div>
+
+                <div class="agent-card" data-agent="goal" id="card-goal">
+                    <div class="agent-header">
+                        <span class="agent-dot goal-dot"></span>
+                        <span class="agent-name">Goal-Based</span>
+                        <span class="agent-badge">🟢</span>
+                    </div>
+                    <div class="agent-bars">
+                        <div class="bar-row"><span>HP</span><div class="bar"><div class="bar-fill hp-fill" id="hp-goal"></div></div><span class="bar-val" id="hp-val-goal">100</span></div>
+                        <div class="bar-row"><span>🍎</span><div class="bar"><div class="bar-fill hunger-fill" id="hunger-goal"></div></div><span class="bar-val" id="hunger-val-goal">100</span></div>
+                        <div class="bar-row"><span>⚡</span><div class="bar"><div class="bar-fill energy-fill" id="energy-goal"></div></div><span class="bar-val" id="energy-val-goal">100</span></div>
+                    </div>
+                    <div class="agent-status" id="status-goal">Ready</div>
+                    <div class="agent-ability">Ability: <strong>Resource Radar</strong></div>
+                    <button class="btn btn-control" data-agent="goal">🎮 Control</button>
+                </div>
+
+                <div class="agent-card" data-agent="utility" id="card-utility">
+                    <div class="agent-header">
+                        <span class="agent-dot utility-dot"></span>
+                        <span class="agent-name">Utility-Based</span>
+                        <span class="agent-badge">🟡</span>
+                    </div>
+                    <div class="agent-bars">
+                        <div class="bar-row"><span>HP</span><div class="bar"><div class="bar-fill hp-fill" id="hp-utility"></div></div><span class="bar-val" id="hp-val-utility">100</span></div>
+                        <div class="bar-row"><span>🍎</span><div class="bar"><div class="bar-fill hunger-fill" id="hunger-utility"></div></div><span class="bar-val" id="hunger-val-utility">100</span></div>
+                        <div class="bar-row"><span>⚡</span><div class="bar"><div class="bar-fill energy-fill" id="energy-utility"></div></div><span class="bar-val" id="energy-val-utility">100</span></div>
+                    </div>
+                    <div class="agent-status" id="status-utility">Ready</div>
+                    <div class="agent-ability">Ability: <strong>Risk Analysis</strong></div>
+                    <button class="btn btn-control" data-agent="utility">🎮 Control</button>
+                </div>
+
+                <div class="agent-card" data-agent="learning" id="card-learning">
+                    <div class="agent-header">
+                        <span class="agent-dot learning-dot"></span>
+                        <span class="agent-name">Learning</span>
+                        <span class="agent-badge">🟣</span>
+                    </div>
+                    <div class="agent-bars">
+                        <div class="bar-row"><span>HP</span><div class="bar"><div class="bar-fill hp-fill" id="hp-learning"></div></div><span class="bar-val" id="hp-val-learning">100</span></div>
+                        <div class="bar-row"><span>🍎</span><div class="bar"><div class="bar-fill hunger-fill" id="hunger-learning"></div></div><span class="bar-val" id="hunger-val-learning">100</span></div>
+                        <div class="bar-row"><span>⚡</span><div class="bar"><div class="bar-fill energy-fill" id="energy-learning"></div></div><span class="bar-val" id="energy-val-learning">100</span></div>
+                    </div>
+                    <div class="agent-status" id="status-learning">Ready</div>
+                    <div class="agent-ability">Ability: <strong>Evolve</strong></div>
+                    <button class="btn btn-control" data-agent="learning">🎮 Control</button>
+                </div>
+            </aside>
+
+            <!-- Center: Arena -->
+            <section class="arena-section">
+                <div class="arena-wrap" id="arena-wrap">
+                    <canvas id="arena" width="600" height="600"></canvas>
+                </div>
+                <!-- Overlay messages -->
+                <div class="overlay hidden" id="overlay">
+                    <div class="overlay-content" id="overlay-content"></div>
+                </div>
+            </section>
+
+            <!-- Right: Leaderboard & Info -->
+            <aside class="sidebar info-sidebar">
+                <h2 class="sidebar-title">🏆 Leaderboard</h2>
+                <div class="leaderboard" id="leaderboard">
+                    <div class="lb-row" id="lb-1"><span class="lb-rank">1</span><span class="lb-name">—</span><span class="lb-time">—</span></div>
+                    <div class="lb-row" id="lb-2"><span class="lb-rank">2</span><span class="lb-name">—</span><span class="lb-time">—</span></div>
+                    <div class="lb-row" id="lb-3"><span class="lb-rank">3</span><span class="lb-name">—</span><span class="lb-time">—</span></div>
+                    <div class="lb-row" id="lb-4"><span class="lb-rank">4</span><span class="lb-name">—</span><span class="lb-time">—</span></div>
+                    <div class="lb-row" id="lb-5"><span class="lb-rank">5</span><span class="lb-name">—</span><span class="lb-time">—</span></div>
+                </div>
+
+                <h2 class="sidebar-title">📖 Agent Info</h2>
+                <div class="info-box" id="info-box">
+                    <p>Press <kbd>▶ Start</kbd> to begin the survival arena!</p>
+                    <p class="info-hint">Use <kbd>↑↓←→</kbd> to control a selected agent. Click <kbd>🎮 Control</kbd> on any agent card.</p>
+                </div>
+
+                <h2 class="sidebar-title">📝 Event Log</h2>
+                <div class="event-log" id="event-log"></div>
+
+                <div class="legend-box">
+                    <h3 class="sidebar-subtitle">Terrain</h3>
+                    <div class="legend-grid">
+                        <span class="lg-swatch grass-swatch"></span><span>Grass</span>
+                        <span class="lg-swatch water-swatch"></span><span>Water</span>
+                        <span class="lg-swatch lava-swatch"></span><span>Lava</span>
+                        <span class="lg-swatch forest-swatch"></span><span>Forest</span>
+                    </div>
+                    <h3 class="sidebar-subtitle">Items</h3>
+                    <div class="legend-grid">
+                        <span>🍎</span><span>Food</span>
+                        <span>❤️</span><span>Heal</span>
+                        <span>⚡</span><span>Speed</span>
+                        <span>🛡️</span><span>Shield</span>
+                        <span>💣</span><span>Bomb</span>
+                        <span>👁️</span><span>Vision</span>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <footer class="footer">
+            <p>Concepts from <strong>Unit 3</strong> — AI Agents (Simple Reflex, Model-Based, Goal-Based, Utility-Based, Learning) & PEAS Framework</p>
+            <p><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> Move · <kbd>Space</kbd> Use Ability</p>
+        </footer>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
